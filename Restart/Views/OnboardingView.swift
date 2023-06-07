@@ -27,7 +27,7 @@ struct OnboardingView: View {
                 
                 TopTextView()
                     .offset(y : isAnimating ? 0 : -50)
-                    .animation(.easeInOut, value: isAnimating)
+                    .animation(.easeInOut(duration: 1.5), value: isAnimating)
                 
                 // Middle
                 
@@ -125,7 +125,7 @@ struct OnboardingView: View {
                 }
                 .frame(width: buttonWidth, height: 80)
                 .offset(y: isAnimating ? 0 : 50)
-                .animation(.easeInOut, value: isAnimating)
+                .animation(.easeInOut(duration: 1.5), value: isAnimating)
                 
                 Spacer()
                 
