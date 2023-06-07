@@ -11,6 +11,15 @@ struct HomeView: View {
     
     @AppStorage("isOnboardingView") var isOnboardingView : Bool = false
     
+    @State private var isAnimating : Bool = false
+    
+    private var imageAnimation : Animation {
+        
+        .easeInOut(duration: 2.0)
+        .repeatForever()
+        
+    }
+    
     var body: some View {
 
         ZStack {
@@ -24,10 +33,14 @@ struct HomeView: View {
                 ZStack {
                     
                     CircleImageView(color: Color.gray)
+                        .blur(radius: isAnimating ? 0 : 50)
+                        .animation(.easeInOut(duration: 1.0), value: isAnimating)
                     
                     Image("character-2")
                         .resizable()
                         .scaledToFit()
+                        .offset(y: isAnimating ? 20 : -20)
+                        .animation(imageAnimation, value: isAnimating)
                     
                 }
                 .padding()
@@ -46,6 +59,7 @@ struct HomeView: View {
                 Spacer()
                 
                 Button {
+                    SoundSetting.instance.playSound(audioName: "chimeup", withExtension: ".mp3")
                     isOnboardingView = true
                 } label: {
                     
@@ -69,6 +83,11 @@ struct HomeView: View {
                 
                 
             } // VStack
+        }
+        .onAppear {
+            
+            isAnimating = true
+            
         }
     }
 }
