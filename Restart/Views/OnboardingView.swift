@@ -14,6 +14,9 @@ struct OnboardingView: View {
     @State private var buttonWidth : Double = UIScreen.main.bounds.width - 80
     @State private var buttonOffset : CGFloat = 0
     @State private var isAnimating : Bool = false
+    @State private var imageAnimating : Bool = false
+    @State private var imageOffset : CGSize = .zero
+    @State private var title : String = "Share."
     
     var body: some View {
         
@@ -25,9 +28,24 @@ struct OnboardingView: View {
                 
                 // Top Text View
                 
-                TopTextView()
+                Text(title)
+                    .font(.system(size: 60))
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.white)
+                    .padding(.top)
                     .offset(y : isAnimating ? 0 : -50)
                     .animation(.easeInOut(duration: 1.5), value: isAnimating)
+                
+                Text("""
+                    It's not how much we give but
+                    how much love we put into giving.
+                    """)
+                .multilineTextAlignment(.center)
+                .fontWeight(.light)
+                .foregroundColor(Color.white)
+                .font(.title3)
+                .offset(y : isAnimating ? 0 : -50)
+                .animation(.easeInOut(duration: 1.5), value: isAnimating)
                 
                 // Middle
                 
@@ -35,18 +53,45 @@ struct OnboardingView: View {
                     
                     CircleImageView(color: Color.white)
                         .blur(radius: isAnimating ? 0 : 50)
-                        .animation(.easeInOut(duration: 1.0), value: isAnimating)
+                        .blur(radius: imageAnimating ? 8 : 0)
+                        .offset(x: imageOffset.width * -1)
+                        .animation(.easeOut(duration: 1.0), value: imageOffset)
+                        .animation(.easeIn(duration: 1.0), value: isAnimating)
                        
                     ZStack(alignment: .bottom) {
                         
                         Image("character-1")
                             .resizable()
                             .scaledToFit()
+                            .offset(x: imageOffset.width , y: 0)
+                            .rotationEffect(.degrees(Double(imageOffset.width / 20)))
+                            .gesture(DragGesture(coordinateSpace: .global)
+                                .onChanged({ value in
+
+                                        if abs(value.translation.width) <= buttonWidth {
+                                            imageAnimating = true
+                                            imageOffset = value.translation
+                                            title = "Give"
+                                            
+                                        }
+                                })
+                                     
+                                    .onEnded({ _ in
+                                       
+                                            imageAnimating = false
+                                            imageOffset = .zero
+                                            title = "Share."
+                                       
+                                    })
+                                     
+                            ) // gesture
+                            .animation(.easeOut(duration: 1), value: imageOffset)
                         
                         Image(systemName: "arrow.left.and.right.circle")
                             .font(.largeTitle)
                             .foregroundColor(Color.white)
                             .fontWeight(.ultraLight)
+                            .opacity(imageAnimating ? 0 : 1.0)
                         
                     }
                     
@@ -100,7 +145,7 @@ struct OnboardingView: View {
                                     .onEnded { _ in
                                       withAnimation(Animation.easeOut(duration: 0.4)) {
                                         if buttonOffset > buttonWidth / 2 {
-                                          SoundSetting.instance.playSound(audioName: "success", withExtension: ".m4a")
+                                          SoundSetting.instance.playSound(audioName: "chimeup", withExtension: ".mp3")
                                           buttonOffset = buttonWidth - 80
                                           isOnboardingView = false
                                             
@@ -137,6 +182,8 @@ struct OnboardingView: View {
             isAnimating = true
             
         }
+        
+        .preferredColorScheme(.dark)
     }
 }
 
@@ -164,24 +211,5 @@ struct CircleImageView: View {
             .foregroundColor(color)
             .opacity(0.1)
         
-    }
-}
-
-struct TopTextView: View {
-    var body: some View {
-        Text("Share.")
-            .font(.system(size: 60))
-            .fontWeight(.bold)
-            .foregroundColor(Color.white)
-            .padding(.top)
-        
-        Text("""
-            It's not how much we give but
-            how much love we put into giving.
-            """)
-        .multilineTextAlignment(.center)
-        .fontWeight(.light)
-        .foregroundColor(Color.white)
-        .font(.title3)
     }
 }

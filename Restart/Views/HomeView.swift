@@ -59,7 +59,7 @@ struct HomeView: View {
                 Spacer()
                 
                 Button {
-                    SoundSetting.instance.playSound(audioName: "chimeup", withExtension: ".mp3")
+                    SoundSetting.instance.playSound(audioName: "success", withExtension: ".m4a")
                     isOnboardingView = true
                 } label: {
                     
